@@ -1,0 +1,49 @@
+#! /usr/local/opt/php@8.0/bin/php
+<?php
+
+function ls($dir)
+{
+    // Get the directory contents
+    $files = scandir($dir);
+    // Format and display the output
+    foreach ($files as $file) {
+        // Exclude current directory (.) and parent directory (..)
+        if ($file != '.' && $file != '..') {
+            $path = $dir . $file;
+            $permissions = formatPermissions(fileperms($path));
+            $size = formatSize(filesize($path));
+            $modified = date('M d Y H:i:s', filemtime($path));
+            echo "$permissions\t$size\t$modified\t$file\n";
+        }
+    }
+}
+
+function formatPermissions($permissions)
+{
+    $perms = '';
+    $perms .= ($permissions & 0400) ? 'r' : '-';
+    $perms .= ($permissions & 0200) ? 'w' : '-';
+    $perms .= ($permissions & 0100) ? 'x' : '-';
+    $perms .= ($permissions & 040) ? 'r' : '-';
+    $perms .= ($permissions & 020) ? 'w' : '-';
+    $perms .= ($permissions & 010) ? 'x' : '-';
+    $perms .= ($permissions & 04) ? 'r' : '-';
+    $perms .= ($permissions & 02) ? 'w' : '-';
+    $perms .= ($permissions & 01) ? 'x' : '-';
+    return $perms;
+}
+
+function formatSize($size)
+{
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $i = 0;
+    while ($size >= 1024 && $i < 4) {
+        $size /= 1024;
+        $i++;
+    }
+    return round($size, 2) . ' ' . $units[$i];
+}
+
+// Usage example
+$directory = './'; // Specify the directory path here
+ls($directory);
